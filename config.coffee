@@ -1,5 +1,6 @@
 {argv} = require 'yargs'
 path = require 'path'
+pack = require './package.json'
 require 'require-cson'
 
 configFile = try require argv.config
@@ -20,12 +21,12 @@ for own key, value of configFile
 for own key, value of argv
   config[strip key] = value
 
-config.projectpath = path.resolve config.projectpath or process.cwd()
-
 config.watchserverfiles or= [
   "**/*.coffee"
   "**/*.cson"
   "!node_modules/*"
 ]
+
+config.package = pack
 
 module.exports = Get

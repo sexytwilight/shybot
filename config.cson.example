@@ -1,2 +1,3 @@
-name: 'CHARACTER NAME'
-password: 'PASSWORD'
+account: "FLIST_USERNAME"
+password: "FLIST_PASSWORD"
+character: "CHARRACTER_NAME"

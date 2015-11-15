@@ -1,4 +1,6 @@
 {
+  "name": "shybot",
+  "version": "0.0.1",
   "devDependencies": {
     "gulp": "4.0.0-alpha.1"
   },
@@ -6,5 +8,29 @@
     "coffee-script": "^1.10.0",
     "f-chat.io": "^0.1.1",
     "require-cson": "^0.1.0"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "An adorable little Chat Bot for https://f-list.net/chat/",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sexytwilight/shybot.git"
+  },
+  "keywords": [
+    "f-list",
+    "flist",
+    "f-chat",
+    "fchat",
+    "f",
+    "chat",
+    "bot"
+  ],
+  "author": "Sexy Twilight",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sexytwilight/shybot/issues"
+  },
+  "homepage": "https://github.com/sexytwilight/shybot#readme"
 }

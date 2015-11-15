@@ -8,4 +8,6 @@ Copy `config.cson.example` and rename it something like `mybot.cson` just as lon
 Make sure you `npm install` to install dependencies!
 To run: `gulp --config mybot.cson`
 
+all `*.cson` config files are `.gitignore` for you
+
 Note: if Gulp4 has not released yet and you are having trouble, go to https://github.com/gulpjs/gulp/tree/4.0 Download ZIP and extract it to the `node_modules` folder of the bot, then rename the `gulp-4.0` to just `gulp` and then try to `npm install` again!
