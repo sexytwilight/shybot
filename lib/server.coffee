@@ -1,6 +1,9 @@
 config = require '../config.coffee'
 Package = config 'Package'
+co = require 'co'
 { FChatClient, FListClient } = require 'f-chat.io'
+
+chat = require './chat.coffee'
 
 # bot code goes here!
 fchat = new FChatClient {
@@ -44,18 +47,38 @@ fchat.on 'connected', ->
   # that got successfully parsed by the FChatClient object's parse(...) method
   # should trigger events with the same three-character names listed on the
   # wiki, e.g. the "PIN" command:
-  fchat.on 'PIN', handle 'Ping', (args) ->
-    console.log 'Recieved PING from server'
-    #fchat.disconnect()
+  # fchat.on 'PIN', handle 'Ping', (args) ->
+  #   console.log 'Recieved PING from server'
+  #   fchat.disconnect()
 
-  fchat.on 'PRI', handle 'Private Message', ({ character, message }) ->
-    fchat.send 'PRI', { recipient: character,  message: "um, #{message}, um.. #{character}" }
+  fchat.on 'PRI', handle 'Private Message', (data) ->
+    { character, message } = data
+    began = Date.now()
+    co ->
+      message = chat.call Object.assign (Object.create fchat), data, { character: 'you' }
+      if message
+        console.log message
+        setTimeout ->
+          fchat.send 'PRI', {
+            recipient: character
+            message
+          }
+        , Math.abs(((message.split ' ').length * 351) - (Date.now() - began))
 
-  fchat.on 'MSG', handle 'Channel Message', ({ channel, message, character }) ->
+  fchat.on 'MSG', handle 'Channel Message', (data) ->
+    { channel, message } = data
     if (new RegExp "#{config 'character'}", 'i').test message
-      setTimeout ->
-        fchat.send 'MSG', { channel, message: "um, #{message}, um.. #{character}" }
-      , Math.random() * message.length * 17
+      began = Date.now()
+      co ->
+        message = chat.call Object.assign (Object.create fchat), data
+        if message
+          console.log message
+          setTimeout ->
+            fchat.send 'MSG', {
+              channel
+              message
+            }
+          , Math.abs(((message.split ' ').length * 351) - (Date.now() - began))
 
 fchat.connect (config 'Account'), (config 'Password'), {
   autoPing: yes

@@ -5,6 +5,7 @@
     "gulp": "4.0.0-alpha.1"
   },
   "dependencies": {
+    "co": "^4.6.0",
     "coffee-script": "^1.10.0",
     "f-chat.io": "^0.1.1",
     "require-cson": "^0.1.0"
