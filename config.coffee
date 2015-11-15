@@ -1,15 +1,28 @@
 {argv} = require 'yargs'
 path = require 'path'
 pack = require './package.json'
-require 'require-cson'
+CSON = require 'require-cson'
+fs = require 'fs'
 
 configFile = try require argv.config
-configFile or= try require process.env.config
-configFile or= {}
+configFilePath = argv.config
+unless configFile
+  configFile = try require process.env.config
+  configFilePath = process.env.config
+unless configFile
+  configFile = {}
+  configFilePath = ''
 
-Get = (key) -> config[strip key]
-config = Get.config = {}
-strip = Get.strip = (key) ->
+Config = (key, value) ->
+  if arguments.length > 1
+    config[strip key] = value
+    configFile[key] = value
+    if configFilePath
+      fs.write configFilePath, CSON.stringify configFile
+  else
+    config[strip key]
+config = Config.config = {}
+strip = Config.strip = (key) ->
   "#{key}".replace(/[\W_]+/g,'').toLowerCase()
 
 for own key, value of process.env
@@ -29,4 +42,4 @@ config.watchserverfiles or= [
 
 config.package = pack
 
-module.exports = Get
+module.exports = Config
