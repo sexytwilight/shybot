@@ -4,8 +4,9 @@ Package = config 'Package'
 
 # bot code goes here!
 fchat = new FChatClient {
-  cname: "#{Package.name}<#{config 'Character'}>"
+  cname: "#{Package.name}<#{config 'Character'}>,f-chat.io"
   cversion: "v#{Package.version}-#{config 'Character'}"
+  port: config 'port'
 }
 
 handle = (name, handler) -> (error, args...) ->
@@ -29,11 +30,16 @@ fchat.on 'connected', ->
   fchat.on 'identified', handle 'Identified', (data) ->
     console.log 'Identified as character: ' + data.character
     # This apparently has a Syntax Error:
-    fchat.send 'JCH', channel: '1872a1a2903ed01f8073'
+    fchat.send 'JCH', channel: 'ADH-97ab25d9295689640891'
+  # fchat.on 'ICH', handle 'ICH', ({ channel }) ->
+  #   fchat.send 'RST', { channel, status: 'public' }
+  #   fchat.send 'CIU', { channel, character: 'Sexy Twilight' }
   # Raw commands, that got successfully parsed from any
   # message the WebSocket client got from the server
-  fchat.on 'raw', handle 'Raw', (command) ->
-    console.log '>> [' + command.id + '] -> ' + JSON.stringify(command.args)
+
+  # fchat.on 'raw', handle 'Raw', (command) ->
+  #   console.log '>> [' + command.id + '] -> ' + JSON.stringify(command.args)
+
   # Any of the commands listed here https://wiki.f-list.net/FChat_server_commands
   # that got successfully parsed by the FChatClient object's parse(...) method
   # should trigger events with the same three-character names listed on the
@@ -42,4 +48,16 @@ fchat.on 'connected', ->
     console.log 'Recieved PING from server'
     #fchat.disconnect()
 
-fchat.connect (config 'Account'), (config 'Password'), autoPing: yes, character: config 'Character'
+  fchat.on 'PRI', handle 'Private Message', ({ character, message }) ->
+    fchat.send 'PRI', { recipient: character,  message: "um, #{message}, um.. #{character}" }
+
+  fchat.on 'MSG', handle 'Channel Message', ({ channel, message, character }) ->
+    if (new RegExp "#{config 'character'}", 'i').test message
+      setTimeout ->
+        fchat.send 'MSG', { channel, message: "um, #{message}, um.. #{character}" }
+      , Math.random() * message.length * 17
+
+fchat.connect (config 'Account'), (config 'Password'), {
+  autoPing: yes
+  character: config 'Character'
+}
