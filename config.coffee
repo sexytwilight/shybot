@@ -4,11 +4,11 @@ pack = require './package.json'
 CSON = require 'require-cson'
 fs = require 'fs'
 
-configFilePath = path.resolve argv.config
-configFile = try require argv.config
+configFilePath = try path.resolve argv.config
+configFile = try require configFilePath
 unless configFile
-  configFilePath = path.resolve process.env.config
-  configFile = try require process.env.config
+  configFilePath = try path.resolve process.env.config
+  configFile = try require configFilePath
 unless configFile
   configFilePath = ''
   configFile = {}

@@ -13,6 +13,10 @@ fchat = new FChatClient {
   port: config 'Port'
 }
 
+# Dirty hack bypass until fchat.io is fixed....
+fchat.send = (command, params, cb) ->
+  @socket.send("#{command} #{JSON.stringify params}", cb);
+
 reconnecting = null
 connect = ->
   unless reconnecting
