@@ -1,4 +1,7 @@
 bin/*
+commands/*
+interactions/*
+plugins/*
 *.cson
 
 # Logs
