@@ -1,21 +1,10 @@
 config = require '../config.coffee'
-Package = config 'Package'
 co = require 'co'
-{ FChatClient, FListClient } = require 'f-chat.io'
 
 chat = require './chat.coffee'
 rooms = require './rooms.coffee'
 
-# bot code goes here!
-fchat = new FChatClient {
-  cname: "#{Package.name}<#{config 'Character'}>,f-chat.io"
-  cversion: "v#{Package.version}-#{config 'Character'}"
-  port: config 'Port'
-}
-
-# Dirty hack bypass until fchat.io is fixed....
-fchat.send = (command, params, cb) ->
-  @socket.send("#{command} #{JSON.stringify params}", cb);
+fchat = require './fchat.coffee'
 
 reconnecting = null
 connect = ->
@@ -65,6 +54,7 @@ fchat.on 'connected', ->
     if (/^!/.test message) or (new RegExp "#{config 'Character'}", 'i').test message
       began = Date.now()
       co ->
+        console.log data
         message = chat.call Object.assign (Object.create fchat), data
         if message
           console.log message
