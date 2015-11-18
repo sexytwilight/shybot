@@ -2,7 +2,7 @@ config = require '../config.coffee'
 co = require 'co'
 
 chat = require './chat.coffee'
-rooms = require './rooms.coffee'
+channels = require './channels.coffee'
 
 fchat = require './fchat.coffee'
 
@@ -33,36 +33,38 @@ fchat.on 'connected', ->
     console.log "#{config 'Character'} disconnected?!"
     connect()
 
-  rooms fchat
+  fchat.var = {}
+  fchat.on 'VAR', handle 'Server Variable', ({ variable, value }) ->
+    fchat.var[variable] = if typeof value is 'string' then try JSON.parse value else value
+
+  channels fchat
 
   fchat.on 'PRI', handle 'Private Message', (data) ->
     { character, message } = data
-    began = Date.now()
     co ->
-      message = chat.call Object.assign (Object.create fchat), data, { character: 'you' }
+      try
+        message = chat.call Object.assign (Object.create fchat), data, { private: yes, character: 'you' }
+      catch error
+        handle('Message') error
       if message
         console.log message
-        setTimeout ->
-          fchat.send 'PRI', {
-            recipient: character
-            message
-          }
-        , Math.abs(((message.split /\W+/g).length * 351) - (Date.now() - began))
+        fchat.send 'PRI', {
+          recipient: character
+          message
+        }
 
   fchat.on 'MSG', handle 'Channel Message', (data) ->
     { channel, message } = data
-    if (/^!/.test message) or (new RegExp "#{config 'Character'}", 'i').test message
-      began = Date.now()
-      co ->
-        console.log data
+    co ->
+      try
         message = chat.call Object.assign (Object.create fchat), data
-        if message
-          console.log message
-          setTimeout ->
-            fchat.send 'MSG', {
-              channel
-              message
-            }
-          , Math.abs(((message.split /\W+/g).length * 351) - (Date.now() - began))
+      catch error
+        handle('Message') error
+      if message
+        console.log message
+        fchat.send 'MSG', {
+          channel
+          message
+        }
 
 connect()
