@@ -4,7 +4,6 @@ config = require '../config.coffee'
 module.exports = (fchat) ->
   fchat.channels or= {}
   fchat.isOp = (channel, who) ->
-    console.log @channels, channel, who
     oplist = (op.toLowerCase() for op in @channels?[channel]?.oplist or [])
     "#{who}".toLowerCase() in oplist
   # Notify about channel joining:

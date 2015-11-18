@@ -8,7 +8,6 @@ unsure = require './interactions/unsure.coffee'
 
 module.exports = ->
   response = commands.apply @, arguments
-  console.log response
   if response isnt no
     response
   else if @private or (new RegExp "#{config 'Character'}", 'i').test @message
