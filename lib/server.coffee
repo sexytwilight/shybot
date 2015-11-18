@@ -4,52 +4,43 @@ co = require 'co'
 { FChatClient, FListClient } = require 'f-chat.io'
 
 chat = require './chat.coffee'
+rooms = require './rooms.coffee'
 
 # bot code goes here!
 fchat = new FChatClient {
   cname: "#{Package.name}<#{config 'Character'}>,f-chat.io"
   cversion: "v#{Package.version}-#{config 'Character'}"
-  port: config 'port'
+  port: config 'Port'
 }
 
-handle = (name, handler) -> (error, args...) ->
-  if error
-    console.log "#{name} Error: #{error?.message or error}\n#{error?.stack}"
-  else
-    handler? args...
+reconnecting = null
+connect = ->
+  unless reconnecting
+    delay = if reconnecting? then 20000 else 0
+    if reconnecting?
+      console.log "#{config 'Character'} is must wait before reconnecting..."
+    reconnecting = true
+    setTimeout ->
+      reconnecting = false
+      console.log "#{config 'Character'} is connecting..."
+      fchat.connect (config 'Account'), (config 'Password'), {
+        autoPing: yes
+        character: config 'Character'
+      }
+    , delay
+
+handle = require './handler.coffee'
 
 fchat.on 'error', handle 'Error'
 
-# WebSocket connection established
 fchat.on 'connected', ->
-  console.log 'Client connected'
-  # Something caused the WebSocket to disconnect
+  console.log "#{config 'Character'} connected to #{(config 'Host') or 'chat.f-list.net'}:#{(config 'Port') or 8799}"
+
   fchat.on 'disconnected', ->
-    console.log 'Client disconnected'
-  # Got API ticket from https://www.f-list.net/json/getApiTicket.php
-  fchat.on 'ticket', handle 'Ticket', (data) ->
-    console.log 'Requested ticket: ' + data.ticket
-  # Got IDN from server, after automatically sending IDN from client
-  fchat.on 'identified', handle 'Identified', (data) ->
-    console.log 'Identified as character: ' + data.character
-    # This apparently has a Syntax Error:
-    fchat.send 'JCH', channel: 'ADH-97ab25d9295689640891'
-  # fchat.on 'ICH', handle 'ICH', ({ channel }) ->
-  #   fchat.send 'RST', { channel, status: 'public' }
-  #   fchat.send 'CIU', { channel, character: 'Sexy Twilight' }
-  # Raw commands, that got successfully parsed from any
-  # message the WebSocket client got from the server
+    console.log "#{config 'Character'} disconnected?!"
+    connect()
 
-  # fchat.on 'raw', handle 'Raw', (command) ->
-  #   console.log '>> [' + command.id + '] -> ' + JSON.stringify(command.args)
-
-  # Any of the commands listed here https://wiki.f-list.net/FChat_server_commands
-  # that got successfully parsed by the FChatClient object's parse(...) method
-  # should trigger events with the same three-character names listed on the
-  # wiki, e.g. the "PIN" command:
-  # fchat.on 'PIN', handle 'Ping', (args) ->
-  #   console.log 'Recieved PING from server'
-  #   fchat.disconnect()
+  rooms fchat
 
   fchat.on 'PRI', handle 'Private Message', (data) ->
     { character, message } = data
@@ -63,11 +54,11 @@ fchat.on 'connected', ->
             recipient: character
             message
           }
-        , Math.abs(((message.split ' ').length * 351) - (Date.now() - began))
+        , Math.abs(((message.split /\W+/g).length * 351) - (Date.now() - began))
 
   fchat.on 'MSG', handle 'Channel Message', (data) ->
     { channel, message } = data
-    if (new RegExp "#{config 'character'}", 'i').test message
+    if (/^!/.test message) or (new RegExp "#{config 'Character'}", 'i').test message
       began = Date.now()
       co ->
         message = chat.call Object.assign (Object.create fchat), data
@@ -78,9 +69,6 @@ fchat.on 'connected', ->
               channel
               message
             }
-          , Math.abs(((message.split ' ').length * 351) - (Date.now() - began))
+          , Math.abs(((message.split /\W+/g).length * 351) - (Date.now() - began))
 
-fchat.connect (config 'Account'), (config 'Password'), {
-  autoPing: yes
-  character: config 'Character'
-}
+connect()

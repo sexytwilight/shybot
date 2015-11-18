@@ -4,21 +4,31 @@ pack = require './package.json'
 CSON = require 'require-cson'
 fs = require 'fs'
 
+configFilePath = path.resolve argv.config
 configFile = try require argv.config
-configFilePath = argv.config
 unless configFile
+  configFilePath = path.resolve process.env.config
   configFile = try require process.env.config
-  configFilePath = process.env.config
 unless configFile
-  configFile = {}
   configFilePath = ''
+  configFile = {}
+
+if configFilePath
+  console.log "LOADED: #{configFilePath}"
+  # fs.watch configFilePath, ->
+  #   fs.writeFile configFilePath, (error, data) ->
+  #     if error then throw error
+  #     configFile = CSON.parse data
+  #     for own key, value of configFile
+  #       config[strip key] = value
+  #     console.log "RELOADED: #{configFilePath}"
 
 Config = (key, value) ->
   if arguments.length > 1
     config[strip key] = value
-    configFile[key] = value
+    configFile[strip key] = value
     if configFilePath
-      fs.write configFilePath, CSON.stringify configFile
+      fs.writeFile configFilePath, CSON.stringify configFile, null, 2
   else
     config[strip key]
 config = Config.config = {}
