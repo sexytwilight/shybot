@@ -15,9 +15,9 @@ loadCommands = (filename) ->
       console.log "  #{name}(#{value.length or 0})"
       commands[name] = value
 
-for filename in fs.readdirSync "#{__dirname}/commands/"
-  if /\.command\.\w+$/.test filename
-    loadCommands "#{__dirname}/commands/#{filename}"
+# for filename in fs.readdirSync "#{__dirname}/commands/"
+#   if /\.command\.\w+$/.test filename
+#     loadCommands "#{__dirname}/commands/#{filename}"
 for filename in fs.readdirSync "#{__dirname}/../commands/"
   if /\.command\.\w+$/.test filename
     loadCommands "../commands/#{filename}"
