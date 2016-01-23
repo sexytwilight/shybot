@@ -43,7 +43,7 @@ fchat.on 'connected', ->
     { character, message } = data
     co ->
       try
-        message = chat.call Object.assign (Object.create fchat), data, { private: yes, character: 'you' }
+        message = chat.call Object.assign (Object.create fchat), data, { private: yes }
       catch error
         handle('Message') error
       if message

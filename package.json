@@ -1,9 +1,6 @@
 {
   "name": "shybot",
-  "version": "0.0.1",
-  "devDependencies": {
-    "gulp": "4.0.0-alpha.1"
-  },
+  "version": "0.2.0",
   "dependencies": {
     "co": "^4.6.0",
     "coffee-script": "^1.10.0",
