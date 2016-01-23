@@ -10,8 +10,7 @@ unless configFile
   configFilePath = try path.resolve process.env.config
   configFile = try require configFilePath
 unless configFile
-  configFilePath = ''
-  configFile = {}
+  throw new Error 'No --config config.cson found. copy/rename config.cson.example -> to config.cson and fill it out.'
 
 if configFilePath
   console.log "LOADED: #{configFilePath}"

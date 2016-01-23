@@ -9,7 +9,7 @@
     "yargs": "^3.30.0"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js --config config.cson & pause"
   },
   "description": "An adorable little Chat Bot for https://f-list.net/chat/",
   "main": "server.js",
