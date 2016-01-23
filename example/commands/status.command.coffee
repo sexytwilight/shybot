@@ -31,14 +31,21 @@ module.exports =
 
     # Default status to online
     status = 'online'
-    # Remove the status from the message and save to status veriable
-    statusmsg = message.replace /^(online|looking|busy|dnd|idle|away|crown)\s+/i, (match, statusMatch) -> status = statusMatch.toLowerCase()
+    # match the status using regexp, replace status with '' and return statusmsg
+    statusmsg = message.replace /^(online|looking|busy|dnd|idle|away|crown)\s+/i,
+      (match, statusMatch) ->
+        # save the real status to status veriable
+        status = statusMatch.toLowerCase()
+        # replaces the status with nothing to return the statusmsg
+        ''
 
     # Send status to chat server using https://wiki.f-list.net/FChat_client_commands#STA
     @send 'STA', { status, statusmsg }
 
-    # Save status message to config file
+    # Save status to config file
     config 'status', status
+    # Save status message to config file
+    config 'statusmsg', statusmsg
 
     # return a confirmation message:
     "Yes Great & Superior #{@character}, I will set my status."
